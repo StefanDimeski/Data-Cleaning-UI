@@ -1,6 +1,7 @@
 import pandas as pd
+import json
 
-def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for_total, columns_for_rule_fixing, columns_to_copy_from_last_total):
+def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for_total, columns_for_rule_fixing, columns_to_copy_from_last_total, priority_vals):
     df = pd.read_excel(filepath)
 
     df[date_of_birth_column] = df[date_of_birth_column].dt.strftime("%d/%m/%Y")
@@ -42,7 +43,7 @@ def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for
 
             final_val = None
 
-            for comp in ['Yes', 'At Risk', 'No', "Not applicable", "Unknown"]:
+            for comp in priority_vals:
                 containing_values = list(filter(lambda val: comp in val, values))
                 if len(containing_values) > 0:
                     final_val = containing_values[0]
@@ -60,3 +61,14 @@ def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for
         df.drop(curr_client_df.index[1:], inplace=True)
 
     return df
+
+def read_defaults():
+    deserialised = None
+    
+    try:
+        with open("defaults.json", "r") as f:
+            deserialised = json.load(f)
+    except:
+        return [None, None, [], [], [], []]
+
+    return list(deserialised.values())

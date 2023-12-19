@@ -7,7 +7,8 @@ class State():
         self.root = root
 
     def exit(self):
-        pass
+        for child in self.root.winfo_children():
+            child.destroy()
 
     def transition(self, new_state):
         self.exit()
