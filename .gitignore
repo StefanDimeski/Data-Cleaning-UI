@@ -1,1 +1,4 @@
 scrollbar.py
+build
+dist
+ui.spec
