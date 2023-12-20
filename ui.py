@@ -2,7 +2,7 @@ import tkinter as tk
 from StartState import StartState
 from Data import Data
 
-# FIX THAT PROCESSING A PROCESSED FILE DOESNT WORK BECAUSE OF THE DATE TIME THING WITH DATE OF BIRTH
+# DATE HAS TO BE %d/%m/%Y FORMAT
 
 if __name__ == '__main__':
 
