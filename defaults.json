@@ -1,1 +1,34 @@
-{"client_id": "Client ID", "date_birth": "Date Of Birth", "rules_fixing": ["Financial Disadvantage Indicator", "Family Violence Indicator", "Disability", "Homelessness Status"], "totals": ["Country Of Birth", "Financial Disadvantage Indicator", "Family Violence Indicator", "Disability", "Homelessness Status"], "to_copy": ["Court/Tribunal", "Information", "Legal Advice", "Legal Task", "Other Representation", "Referral", "Triage", "Grand Total"], "priorities": ["Yes", "At Risk", "No", "Not applicable", "Unknown"]}
+{
+    "client_id": "Client ID",
+    "date_birth": "Date Of Birth",
+    "rules_fixing": [
+        "Financial Disadvantage Indicator",
+        "Family Violence Indicator",
+        "Disability",
+        "Homelessness Status"
+    ],
+    "totals": [
+        "Country Of Birth",
+        "Financial Disadvantage Indicator",
+        "Family Violence Indicator",
+        "Disability",
+        "Homelessness Status"
+    ],
+    "to_copy": [
+        "Court/Tribunal",
+        "Information",
+        "Legal Advice",
+        "Legal Task",
+        "Other Representation",
+        "Referral",
+        "Triage",
+        "Grand Total"
+    ],
+    "priorities": [
+        "Yes",
+        "At Risk",
+        "No",
+        "Not applicable",
+        "Unknown"
+    ]
+}

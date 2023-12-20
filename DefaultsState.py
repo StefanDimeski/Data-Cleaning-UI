@@ -45,7 +45,7 @@ class DefaultsState(State):
                              "priorities": priority_vals}
         
         with open("defaults.json", "w") as f:
-            json.dump(data_to_serialise, f)
+            json.dump(data_to_serialise, f, indent=4)
 
     def exit(self):
         super().exit()
