@@ -12,7 +12,7 @@ class DefaultsState(State):
         super().enter(root)
         self.options_state = OptionsState(self.data)
         main_frame = tk.Frame(root)
-        main_frame.pack()
+        main_frame.pack(fill=tk.BOTH, expand=True)
 
         self.options_state.enter(main_frame)
 

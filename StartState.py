@@ -51,16 +51,12 @@ class StartState(State):
         filename_to_save = fd.asksaveasfilename(title="Save as", defaultextension=".xlsx",
                                                 filetypes=(("Excel file", ".xlsx"),), confirmoverwrite=True, initialfile="processed_file")
         
-        #clms_for_rule_fixing = ["Financial Disadvantage Indicator", "Family Violence Indicator", "Disability", "Homelessness Status"]
-        #clms_to_check_for_total = ["Country Of Birth"] + clms_for_rule_fixing
-        #clms_to_copy_from_last_total = ["Court/Tribunal", "Information", "Legal Advice", "Legal Task", "Other Representation", "Referral", "Triage", "Grand Total"]
-        
         default_client_id, default_date_birth, default_rules_fixing, default_totals, \
         default_to_copy, default_priorities = read_defaults()
 
         if default_client_id is None or default_date_birth is None or len(default_rules_fixing) <= 0 \
         or len(default_totals) <= 0 or len(default_to_copy) <= 0 or len(default_priorities) <= 0:
-            showinfo(title="Error", message="Cannot process the file because some of the selections are empty!")
+            showinfo(title="Error", message="Error, invalid defaults! Cannot process file.")
             return
         
         final_df = process_file(self.data.filename, id_column=default_client_id, date_of_birth_column=default_date_birth,

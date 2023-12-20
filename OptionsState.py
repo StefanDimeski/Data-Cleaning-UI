@@ -9,6 +9,8 @@ class OptionsState(State):
         super().__init__(data)
 
     def enter(self, root):
+        super().enter(root)
+
         df = pd.read_excel(self.data.filename)
 
         default_client_id, default_date_birth, default_rules_fixing, default_totals, \
@@ -17,6 +19,9 @@ class OptionsState(State):
         root.grid_columnconfigure(0, weight=1)
         root.grid_columnconfigure(1, weight=1)
         root.grid_columnconfigure(2, weight=1)
+
+        root.grid_rowconfigure(0, weight=1)
+        root.grid_rowconfigure(1, weight=1)
   
         client_id_frame = tk.Frame(root, highlightbackground="black", highlightthickness=0.5)
         client_id_frame.grid(row=0, column=0, padx=3, pady=3, sticky="nsew")
@@ -25,10 +30,10 @@ class OptionsState(State):
         client_id_txt.pack()
 
         client_id_lb_frame = tk.Frame(client_id_frame)
-        client_id_lb_frame.pack()
+        client_id_lb_frame.pack(fill=tk.BOTH, padx=4, expand=True)
 
         self.client_id_lb = tk.Listbox(client_id_lb_frame, exportselection=False)
-        self.client_id_lb.pack(side=tk.LEFT, fill=tk.Y)
+        self.client_id_lb.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         client_id_sb = tk.Scrollbar(client_id_lb_frame)
         client_id_sb.pack(side=tk.RIGHT, fill=tk.Y)
@@ -52,10 +57,10 @@ class OptionsState(State):
         date_birth_txt.pack()
 
         date_birth_lb_frame = tk.Frame(date_birth_frame)
-        date_birth_lb_frame.pack()
+        date_birth_lb_frame.pack(fill=tk.BOTH, padx=4, expand=True)
 
         self.date_birth_lb = tk.Listbox(date_birth_lb_frame, exportselection=False)
-        self.date_birth_lb.pack(side=tk.LEFT, fill=tk.Y)
+        self.date_birth_lb.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         date_birth_sb = tk.Scrollbar(date_birth_lb_frame)
         date_birth_sb.pack(side=tk.RIGHT, fill=tk.Y)
@@ -80,10 +85,10 @@ class OptionsState(State):
         rules_fixing_txt.pack()
 
         rules_fixing_lb_frame = tk.Frame(rules_fixing_frame)
-        rules_fixing_lb_frame.pack()
+        rules_fixing_lb_frame.pack(fill=tk.BOTH, padx=4, expand=True)
 
         self.rules_fixing_lb = tk.Listbox(rules_fixing_lb_frame, exportselection=False, selectmode="multiple")
-        self.rules_fixing_lb.pack(side=tk.LEFT, fill=tk.Y)
+        self.rules_fixing_lb.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         rules_fixing_sb = tk.Scrollbar(rules_fixing_lb_frame)
         rules_fixing_sb.pack(side=tk.RIGHT, fill=tk.Y)
@@ -110,10 +115,10 @@ class OptionsState(State):
         totals_txt.pack()
 
         totals_lb_frame = tk.Frame(totals_frame)
-        totals_lb_frame.pack()
+        totals_lb_frame.pack(fill=tk.BOTH, padx=4, expand=True)
 
         self.totals_lb = tk.Listbox(totals_lb_frame, exportselection=False, selectmode="multiple")
-        self.totals_lb.pack(side=tk.LEFT, fill=tk.Y)
+        self.totals_lb.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         totals_sb = tk.Scrollbar(totals_lb_frame)
         totals_sb.pack(side=tk.RIGHT, fill=tk.Y)
@@ -138,10 +143,10 @@ class OptionsState(State):
         to_copy_txt.pack()
 
         to_copy_lb_frame = tk.Frame(to_copy_frame)
-        to_copy_lb_frame.pack()
+        to_copy_lb_frame.pack(fill=tk.BOTH, padx=4, expand=True)
 
         self.to_copy_lb = tk.Listbox(to_copy_lb_frame, exportselection=False, selectmode="multiple")
-        self.to_copy_lb.pack(side=tk.LEFT, fill=tk.Y)
+        self.to_copy_lb.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         to_copy_sb = tk.Scrollbar(to_copy_lb_frame)
         to_copy_sb.pack(side=tk.RIGHT, fill=tk.Y)
@@ -166,10 +171,10 @@ class OptionsState(State):
         priority_txt.pack()
 
         priority_lb_frame = tk.Frame(priority_frame)
-        priority_lb_frame.pack(side=tk.LEFT, padx=4)
+        priority_lb_frame.pack(side=tk.LEFT, padx=4, fill=tk.BOTH, expand=True)
 
         self.priority_lb = tk.Listbox(priority_lb_frame, exportselection=False)
-        self.priority_lb.pack(side=tk.LEFT, fill=tk.Y)
+        self.priority_lb.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         priority_sb = tk.Scrollbar(priority_lb_frame)
         priority_sb.pack(side=tk.RIGHT, fill=tk.Y)
@@ -278,4 +283,4 @@ class OptionsState(State):
             listbox.event_generate("<<ListboxSelect>>")
     
     def exit(self):
-        pass
+        super().exit()
