@@ -38,8 +38,13 @@ class StartState(State):
         super().exit()
 
     def open_file_btn_pressed(self, msg, btn_process, btn_customise, btn_edit_defaults):
-        self.data.filename = fd.askopenfilename(title="Choose the file with legal data to be cleaned up",
+        filename_to_open = fd.askopenfilename(title="Choose the file with legal data to be cleaned up",
                                     filetypes=(("Excel files (.xlsx)", "*.xlsx"),))
+        
+        if filename_to_open == "":
+            return
+        
+        self.data.filename = filename_to_open
         
         self.msg.configure(text="File chosen: " + self.data.filename)
 
@@ -48,15 +53,18 @@ class StartState(State):
         self.btn_edit_defaults.configure(state="normal")
 
     def process_btn_pressed(self):
-        filename_to_save = fd.asksaveasfilename(title="Save as", defaultextension=".xlsx",
-                                                filetypes=(("Excel file", ".xlsx"),), confirmoverwrite=True, initialfile="processed_file")
-        
         default_client_id, default_date_birth, default_rules_fixing, default_totals, \
         default_to_copy, default_priorities = read_defaults()
 
         if default_client_id is None or default_date_birth is None or len(default_rules_fixing) <= 0 \
         or len(default_totals) <= 0 or len(default_to_copy) <= 0 or len(default_priorities) <= 0:
             showinfo(title="Error", message="Error, invalid defaults! Cannot process file.")
+            return
+
+        filename_to_save = fd.asksaveasfilename(title="Save as", defaultextension=".xlsx",
+                                                filetypes=(("Excel file", ".xlsx"),), confirmoverwrite=True, initialfile="processed_file")
+        
+        if filename_to_save == "":
             return
         
         final_df = process_file(self.data.filename, id_column=default_client_id, date_of_birth_column=default_date_birth,

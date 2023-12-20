@@ -50,5 +50,8 @@ class CustomiseState(State):
         filename_to_save = fd.asksaveasfilename(title="Save as", defaultextension=".xlsx",
                                                 filetypes=(("Excel file", ".xlsx"),), confirmoverwrite=True, initialfile="processed_file")
 
+        if filename_to_save == "":
+            return
+        
         final_df = process_file(self.data.filename, client_id_clm, date_birth_clm, totals_clms, rules_fixing_clms, to_copy_clms, priority_vals)
         final_df.to_excel(filename_to_save, index=False)
