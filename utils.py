@@ -11,7 +11,7 @@ def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for
     else:
         print("Shouldn't have gotten here")
 
-    df[date_of_birth_column] = pd.to_datetime(df[date_of_birth_column], errors="coerce", format="%d/%m/%Y")
+    df[date_of_birth_column] = pd.to_datetime(df[date_of_birth_column], format="%d/%m/%Y")
     df[date_of_birth_column] = df[date_of_birth_column].dt.strftime("%d/%m/%Y")
     df[id_column].ffill(inplace=True)
 
