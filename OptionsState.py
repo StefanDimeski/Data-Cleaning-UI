@@ -11,7 +11,16 @@ class OptionsState(State):
     def enter(self, root):
         super().enter(root)
 
-        df = pd.read_excel(self.data.filename)
+        file_extension = self.data.filename.split(".")[-1]
+
+        if file_extension == 'csv':
+            df = pd.read_csv(self.data.filename)
+        elif file_extension == 'xlsx':
+            df = pd.read_excel(self.data.filename)
+        else:
+            print("Shouldn't have gotten here")
+
+        
 
         default_client_id, default_date_birth, default_rules_fixing, default_totals, \
         default_to_copy, default_priorities = read_defaults()
@@ -214,11 +223,11 @@ class OptionsState(State):
             return
         
         idx_to_add_to = 0 if listbox.size() <= 0 else listbox.curselection()[0]
-        listbox.insert(idx_to_add_to, val_to_add)
+        listbox.insert(idx_to_add_to + 1, val_to_add)
 
         listbox.selection_clear(0, tk.END)
 
-        listbox.select_set(idx_to_add_to)
+        listbox.select_set(idx_to_add_to + 1)
         listbox.event_generate("<<ListboxSelect>>")
 
     def priority_remove(listbox):

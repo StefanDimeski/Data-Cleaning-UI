@@ -39,7 +39,9 @@ class StartState(State):
 
     def open_file_btn_pressed(self, msg, btn_process, btn_customise, btn_edit_defaults):
         filename_to_open = fd.askopenfilename(title="Choose the file with legal data to be cleaned up",
-                                    filetypes=(("Excel files (.xlsx)", "*.xlsx"),))
+                                    filetypes=(("Excel file (.xlsx) or CSV (.csv)", ".xlsx .csv"),
+                                               ("Excel file (.xlsx)", ".xlsx"),
+                                               ("Comma Separated Values file (.csv)", ".csv")))
         
         if filename_to_open == "":
             return
@@ -73,8 +75,8 @@ class StartState(State):
 
         final_df.to_excel(filename_to_save, index=False)
 
-        # Close the app, ASK ANAS IF IT SHOULD CLOSE AUTOMATICALLY OR NOT
-        #self.root.destroy()
+
+        showinfo(title="Success!", message="File has been successfully created!")
 
     def customise_btn_pressed(self):
         self.transition(CustomiseState(self.data))

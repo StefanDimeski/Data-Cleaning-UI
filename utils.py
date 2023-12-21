@@ -2,7 +2,14 @@ import pandas as pd
 import json
 
 def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for_total, columns_for_rule_fixing, columns_to_copy_from_last_total, priority_vals):
-    df = pd.read_excel(filepath)
+    file_extension = filepath.split(".")[-1]
+
+    if file_extension == 'csv':
+        df = pd.read_csv(filepath)
+    elif file_extension == 'xlsx':
+        df = pd.read_excel(filepath)
+    else:
+        print("Shouldn't have gotten here")
 
     df[date_of_birth_column] = pd.to_datetime(df[date_of_birth_column], errors="coerce", format="%d/%m/%Y")
     df[date_of_birth_column] = df[date_of_birth_column].dt.strftime("%d/%m/%Y")
@@ -53,7 +60,7 @@ def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for
             if final_val is not None:
                 df.loc[curr_client_df.index[0], column] = final_val
             else:
-                df.loc[curr_client_df.index[0], column] = ''
+                df.loc[curr_client_df.index[0], column] = 'Unknown'
 
         index_of_last_totals_row = max(list(totals_rows.index))
 

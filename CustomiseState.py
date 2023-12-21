@@ -55,3 +55,5 @@ class CustomiseState(State):
         
         final_df = process_file(self.data.filename, client_id_clm, date_birth_clm, totals_clms, rules_fixing_clms, to_copy_clms, priority_vals)
         final_df.to_excel(filename_to_save, index=False)
+
+        showinfo(title="Success!", message="File has been successfully created!")
