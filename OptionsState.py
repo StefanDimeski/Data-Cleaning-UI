@@ -4,6 +4,8 @@ import tkinter as tk
 from tkinter import simpledialog as sd
 from utils import read_defaults
 
+# For further documentation, visit State.py
+
 class OptionsState(State):
     def __init__(self, data):
         super().__init__(data)
@@ -11,6 +13,7 @@ class OptionsState(State):
     def enter(self, root):
         super().enter(root)
 
+        # get the selected file's extension
         file_extension = self.data.filename.split(".")[-1]
 
         if file_extension == 'csv':
@@ -21,23 +24,32 @@ class OptionsState(State):
             print("Shouldn't have gotten here")
 
         
-
+        # get the defaults
         default_client_id, default_date_birth, default_rules_fixing, default_totals, \
         default_to_copy, default_priorities = read_defaults()
 
+        # cofigure three columns with equal weight meaning they will split the
+        # available space evenly
         root.grid_columnconfigure(0, weight=1)
         root.grid_columnconfigure(1, weight=1)
         root.grid_columnconfigure(2, weight=1)
 
+        # configure two rows with equal weight meaning they will split the 
+        # available space evenly
         root.grid_rowconfigure(0, weight=1)
         root.grid_rowconfigure(1, weight=1)
+
+        ###### Create the Client ID section (documentation provided only for this section, the rest of them
+        #                                   are identical)
   
+        # frame that will contain the whole section i.e. root frame for the section
         client_id_frame = tk.Frame(root, highlightbackground="black", highlightthickness=0.5)
         client_id_frame.grid(row=0, column=0, padx=3, pady=3, sticky="nsew")
 
         client_id_txt = tk.Message(client_id_frame, text="Select the column which contains the Client ID:", width=600-10)
         client_id_txt.pack()
 
+        # frame for the listbox and scrollbar
         client_id_lb_frame = tk.Frame(client_id_frame)
         client_id_lb_frame.pack(fill=tk.BOTH, padx=4, expand=True)
 
@@ -47,8 +59,11 @@ class OptionsState(State):
         client_id_sb = tk.Scrollbar(client_id_lb_frame)
         client_id_sb.pack(side=tk.RIGHT, fill=tk.Y)
 
+        # add all the columns of the file to the listbox
         for column in df.columns:
             self.client_id_lb.insert(tk.END, str(column))
+
+            # select the default client id column
             if column == default_client_id:
                 self.client_id_lb.select_set(tk.END)
                 self.client_id_lb.event_generate("<<ListboxSelect>>")
@@ -57,7 +72,7 @@ class OptionsState(State):
         client_id_sb.config(command=self.client_id_lb.yview)
         self.client_id_lb.config(yscrollcommand=client_id_sb.set)
 
-        ######
+        ###### Create the date of birth section
 
         date_birth_frame = tk.Frame(root, highlightbackground="black", highlightthickness=0.5)
         date_birth_frame.grid(row=0, column=1, padx=3, pady=3, sticky="nsew")
@@ -85,7 +100,7 @@ class OptionsState(State):
         date_birth_sb.config(command=self.date_birth_lb.yview)
         self.date_birth_lb.config(yscrollcommand=date_birth_sb.set)
 
-        #####
+        ###### Create the rules fixing section
 
         rules_fixing_frame = tk.Frame(root, highlightbackground="black", highlightthickness=0.5)
         rules_fixing_frame.grid(row=0, column=2, padx=3, pady=3, sticky="nsew")
@@ -115,7 +130,7 @@ class OptionsState(State):
 
         # rules_fixing_lb.activate(3) check if u can get rid of the underline when deselecting with this
 
-        #####
+        ###### Create the totals section
 
         totals_frame = tk.Frame(root, highlightbackground="black", highlightthickness=0.5)
         totals_frame.grid(row=1, column=0, padx=3, pady=3, sticky="nsew")
@@ -143,7 +158,7 @@ class OptionsState(State):
         totals_sb.config(command=self.totals_lb.yview)
         self.totals_lb.config(yscrollcommand=totals_sb.set)
 
-        #####
+        ###### Create the to copy section
 
         to_copy_frame = tk.Frame(root, highlightbackground="black", highlightthickness=0.5)
         to_copy_frame.grid(row=1, column=1, padx=3, pady=3, sticky="nsew")
@@ -171,7 +186,7 @@ class OptionsState(State):
         to_copy_sb.config(command=self.to_copy_lb.yview)
         self.to_copy_lb.config(yscrollcommand=to_copy_sb.set)
 
-        #####
+        ###### Create the priority values section
 
         priority_frame = tk.Frame(root, highlightbackground="black", highlightthickness=0.5)
         priority_frame.grid(row=1, column=2, padx=3, pady=3, sticky="nsew")
@@ -215,29 +230,44 @@ class OptionsState(State):
         priority_edit_btn = tk.Button(priority_btns_frame, text="Edit selected", command=lambda: OptionsState.priority_edit(self.priority_lb))
         priority_edit_btn.pack(pady=1.5)
 
-    
+    # Called when the "Add new" button is pressed for the priority values.
+    # Pops up a dialog box asking for a string and then adds that string to listbox
+    # after the currently selected item
+    # Args:
+    # 1. listbox : tk.Listbox - listbox to which to add the new value
     def priority_add(listbox):
+        # ask for the new value
         val_to_add = sd.askstring(title="Adding a new value", prompt="Enter the new value to add:")
 
+        # if cancel was pressed on the dialog, do nothing
         if val_to_add is None:
             return
         
+        # add it to the beginning if the listbox is empty otherwise add it after the currently selected item
         idx_to_add_to = 0 if listbox.size() <= 0 else listbox.curselection()[0]
         listbox.insert(idx_to_add_to + 1, val_to_add)
 
+        # select the newly added value
         listbox.selection_clear(0, tk.END)
-
         listbox.select_set(idx_to_add_to + 1)
         listbox.event_generate("<<ListboxSelect>>")
 
+    # Called when the "Remove selected" button is pressed for the priority vals. Removes the selected value/item
+    # from listbox
+    # Args:
+    # 1. listbox : tk.Listbox - listbox from which to remove the selected value
     def priority_remove(listbox):
+        # get the currently selected value
         idx_selected = listbox.curselection()[0]
 
+        # delete it
         listbox.delete(idx_selected)
 
+        # if the listbox is now empty, our job is done
         if listbox.size() <= 0:
             return
 
+        # at this point the listbox is not empty, so select/highlight the newly added value
         if idx_selected - 1 < 0:
             listbox.select_set(0) #This only sets focus on the first item.
         else:
@@ -245,23 +275,37 @@ class OptionsState(State):
 
         listbox.event_generate("<<ListboxSelect>>")
 
+    # Called when the "Move selected up" button is pressed for the priority vals.
+    # Moves the selected value up by one place in the list.
+    # Args:
+    # 1. listbox : tk.Listbox - listbox in which to move the selected value
     def priority_up(listbox):
+        # get the currently selected item
         curr_sel = listbox.curselection()
 
+        # if the listbox is empty or the first item is selected, then do nothing
         if listbox.size() <= 0 or curr_sel[0] == 0:
             print("empty list or first item selected")
             return
         
+        # temporarily save the value we are going to move
         txt = listbox.get(curr_sel[0])
 
+        # delete the value from its previous position
         listbox.delete(curr_sel[0])
+        # add the value on its new position
         listbox.insert(curr_sel[0] - 1, txt)
 
+        # highlight/select the value in its new position
         listbox.select_set(curr_sel[0] - 1)
         listbox.event_generate("<<ListboxSelect>>")
 
-
+    # Called when the "Move selected down" button is pressed for the priority vals.
+    # Moves the selected value down by one place in the list.
+    # Args:
+    # 1. listbox : tk.Listbox - listbox in which to move the selected value
     def priority_down(listbox):
+        # same logic as in the priority_up function, just moving one position down instead of up
         curr_sel = listbox.curselection()
 
         if listbox.size() <= 0 or curr_sel[0] == listbox.size() - 1:
@@ -276,18 +320,30 @@ class OptionsState(State):
         listbox.select_set(curr_sel[0] + 1)
         listbox.event_generate("<<ListboxSelect>>")
 
+    # Called when the "Edit selected" button is pressed for the priority vals.
+    # Edits the currently selected value.
+    # Args:
+    # 1. listbox : tk.Listbox - listbox in which to edit the currently selected value
     def priority_edit(listbox):
+        # if the listbox is empty, do nothing
         if listbox.size() <= 0:
             return
         
+        # get the currently selected item
         curr_sel = listbox.curselection()[0]
 
+        # pop up a dialog asking for the new value
         new_txt = sd.askstring(title="Changing value", prompt="Enter the new value: ", initialvalue=listbox.get(curr_sel))
 
+        # if they didnt press cancel on the dialog, change the value to the new one
         if new_txt is not None:
+            # delete the old value
             listbox.delete(curr_sel)
+
+            # replace it with the new value i.e. insert the new value in the same place as the old one
             listbox.insert(curr_sel, new_txt)
 
+            # select/highlight the new value
             listbox.select_set(curr_sel)
             listbox.event_generate("<<ListboxSelect>>")
     
