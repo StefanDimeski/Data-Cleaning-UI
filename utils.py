@@ -66,8 +66,6 @@ def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for
             # get the rows which contain "Total" in the current column
             curr_totals_rows = curr_client_df[curr_client_df[column].str.contains("Total")]
 
-            # ARE THEY SORTED AS THEY SHOULD BE HERE OR WE'RE NOT GETTING THE CORRECT LAST TOTALS ROW??
-
             # This following if-elif-else code is to fix: FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated.
             # In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes.
             # To retain the old behavior, exclude the relevant entries before the concat operation.
@@ -115,7 +113,7 @@ def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for
 
         # We find the index of the last row which contains "Total" in at least
         # one if its columns. We do this because we want to replace the values of some of the columns
-        # of the first row of the current client with the values of those columns in this last row which
+        # of the first row (columns_to_copy_from_last_total) of the current client with the values of those columns in this last row which
         # contains "Total".
         index_of_last_totals_row = max(list(totals_rows.index))
 
