@@ -3,6 +3,7 @@ from OptionsState import OptionsState
 import StartState as ss # imported this way to avoid circular import error
 import tkinter as tk
 import json
+from tkinter.messagebox import showinfo
 
 # For further documentation, visit State.py
 
@@ -67,6 +68,8 @@ class DefaultsState(State):
         # write the dictionary to the file
         with open("defaults.json", "w") as f:
             json.dump(data_to_serialise, f, indent=4)
+
+        showinfo(title="Success!", message="The defaults have been sucessfully updated!")
 
     def exit(self):
         super().exit()

@@ -115,6 +115,8 @@ def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for
         # one if its columns. We do this because we want to replace the values of some of the columns
         # of the first row (columns_to_copy_from_last_total) of the current client with the values of those columns in this last row which
         # contains "Total".
+                
+        # Check if totals_rows is null
         index_of_last_totals_row = max(list(totals_rows.index))
 
         # Replace the values of the columns listed in columns_to_copy_from_last_total of the first row
