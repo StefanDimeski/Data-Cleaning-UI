@@ -5,6 +5,8 @@ from tkinter import filedialog as fd
 from CustomiseState import CustomiseState
 from DefaultsState import DefaultsState
 from tkinter.messagebox import showinfo
+import pandas as pd
+from tkinter import messagebox
 
 # For further documentation, visit State.py
 
@@ -66,6 +68,7 @@ class StartState(State):
         self.btn_customise.configure(state="normal")
         self.btn_edit_defaults.configure(state="normal")
 
+
     # Called when the "Process using defaults" button is pressed. It reads the defaults from the defaults.json
     # file and pops out a file dialog so that you choose where to save. Then it processes the file and saves
     # it as chosen.
@@ -77,7 +80,7 @@ class StartState(State):
         # if any of the defaults are missing, throw an error message
         if default_client_id is None or default_date_birth is None or len(default_rules_fixing) <= 0 \
         or len(default_totals) <= 0 or len(default_to_copy) <= 0 or len(default_priorities) <= 0:
-            showinfo(title="Error", message="Error, invalid defaults! Cannot process file.")
+            messagebox.showerror(title="Error", message="Error, invalid defaults! Cannot process file.")
             return
 
         # saving file dialog
@@ -92,6 +95,14 @@ class StartState(State):
         final_df = process_file(self.data.filename, id_column=default_client_id, date_of_birth_column=default_date_birth,
                                 columns_to_check_for_total=default_totals, columns_for_rule_fixing=default_rules_fixing,
                                 columns_to_copy_from_last_total=default_to_copy, priority_vals=default_priorities)
+
+        # there was a column selected that does not exist in this file. Most likely the defaults
+        # contain a column that is not present in this file. Do nothing in this case and just display
+        # the error message
+        if final_df is None:
+            messagebox.showerror("Error! Column does not exist in file!",
+                     "One or more columns selected for processing do not exist in this file. Please go to the Customise screen where they will be highlighted in red.")
+            return
 
         # save the file
         final_df.to_excel(filename_to_save, index=False)

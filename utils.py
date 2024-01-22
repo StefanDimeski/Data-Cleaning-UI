@@ -17,13 +17,45 @@ def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for
 
     # use the appropriate pandas f-on to read the file based on its extension/format
     if file_extension == 'csv':
-        df = pd.read_csv(filepath)
+        df = pd.read_csv(filepath, encoding='cp1252')
     elif file_extension == 'xlsx':
         df = pd.read_excel(filepath)
     else:
         print("Shouldn't have gotten here")
 
+    # if the first row is not the actual column names, read them from the second row.
+    # This happens due to the system used in WCC which generates an extra unneeded row at the top
+    if len(list(filter(lambda x: x is None or x == "" or "Unnamed:" in x, df.columns))) > 0:
+        # read the real column names from the second row of the actual file (i.e. first row here
+        # since the read columns do not count as a row)
+        column_names = list(df.iloc[0])
 
+        # discard the row with the real column names
+        df = df.iloc[1:]
+
+        # replace the wrong column names with the correct ones
+        df.columns = column_names
+
+
+    # check if all the columns selected actually exist in the file
+    if id_column not in df.columns or date_of_birth_column not in df.columns:
+        return None
+    
+    # check if all the columns selected actually exist in the file
+    for col in columns_to_check_for_total:
+        if col not in df.columns:
+            return None
+    for col in columns_for_rule_fixing:
+        if col not in df.columns:
+            return None
+    for col in columns_to_copy_from_last_total:
+        if col not in df.columns:
+            return None
+
+    # This is done because there was a problem when reading an excel file and then saving it,
+    # the format of the date would change (because dates in excel are saved as a date and not
+    # as a string). So what happens now is I parse it and save it as a string in my desired 
+    # format so when it is saved is good.
     df[date_of_birth_column] = pd.to_datetime(df[date_of_birth_column], format="%d/%m/%Y")
     df[date_of_birth_column] = df[date_of_birth_column].dt.strftime("%d/%m/%Y")
 
@@ -37,6 +69,11 @@ def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for
     # those columns get converted to strings if more modularity is required or converting them all
     # creates some problems with certain datatypes
     df = df.astype({column : "string" for column, dtype in zip(df.columns, df.dtypes) if (not 'int' in str(dtype)) or (not 'float' in str(dtype))})
+
+    # we need to convert them to an integer so that we can calculate the totals at the end
+    # to update the grand total row. With this we add the restriction that all columns in
+    # columns_to_copy_from_last_total must contain integer numbers only.
+    df = df.astype({column : "int" for column in columns_to_copy_from_last_total})
 
     # replace the null values of the columns that are checked for total with the
     # empty string (""). This is just to make part of the following code simpler,
@@ -125,6 +162,17 @@ def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for
 
         # Remove all the other rows for the current client except for the first row.
         df.drop(curr_client_df.index[1:], inplace=True)
+
+    # update the grand total row at the end by recalculating the sums of each of the columns
+    # in columns_to_copy_from_last_total and replacing the old value with this new calculated one
+    for col in columns_to_copy_from_last_total:
+        # get the sum of all the values in the current column except for the value in the last
+        # i.e. grand total row
+        total = df.loc[df.index[:-1], col].sum()
+
+        # replace the old value for this column in the grand total row
+        # with the newly calculated value
+        df.loc[df.index[-1], col] = total
 
     return df
 

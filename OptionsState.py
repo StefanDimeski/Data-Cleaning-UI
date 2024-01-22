@@ -3,6 +3,7 @@ import pandas as pd
 import tkinter as tk
 from tkinter import simpledialog as sd
 from utils import read_defaults
+from tkinter.messagebox import showinfo
 
 # For further documentation, visit State.py
 
@@ -17,11 +18,24 @@ class OptionsState(State):
         file_extension = self.data.filename.split(".")[-1]
 
         if file_extension == 'csv':
-            df = pd.read_csv(self.data.filename)
+            df = pd.read_csv(self.data.filename, encoding='cp1252')
         elif file_extension == 'xlsx':
             df = pd.read_excel(self.data.filename)
         else:
             print("Shouldn't have gotten here")
+
+        # if the first row is not the actual column names, read them from the second row.
+        # This happens due to the system used in WCC which generates an extra unneeded row at the top
+        if len(list(filter(lambda x: x is None or x == "" or "Unnamed:" in x, df.columns))) > 0:
+            # read the real column names from the second row of the actual file (i.e. first row here
+            # since the read columns do not count as a row)
+            column_names = list(df.iloc[0])
+
+            # discard the row with the real column names
+            df = df.iloc[1:]
+
+            # replace the wrong column names with the correct ones
+            df.columns = column_names
 
         
         # get the defaults
@@ -38,6 +52,11 @@ class OptionsState(State):
         # available space evenly
         root.grid_rowconfigure(0, weight=1)
         root.grid_rowconfigure(1, weight=1)
+
+        # flag which is set to true when a column is in the defaults but does not exist in
+        # the currently opened file. I use this to determine whether to show a message at
+        # the end of this function
+        default_column_not_present_detected = False
 
         ###### Create the Client ID section (documentation provided only for this section, the rest of them
         #                                   are identical)
@@ -69,6 +88,15 @@ class OptionsState(State):
                 self.client_id_lb.event_generate("<<ListboxSelect>>")
                 self.client_id_lb.see(tk.END)
 
+        # Check if the default column for this section exists in the currently opened file.
+        # If not, add it at the top of the list, highlighted in red colour
+        if default_client_id not in df.columns:
+            self.client_id_lb.insert(0, str(default_client_id))
+            self.client_id_lb.itemconfig(0, background='red', foreground='black', selectbackground='#0078d7', selectforeground='red')
+            self.client_id_lb.see(0)
+
+            default_column_not_present_detected = True
+
         client_id_sb.config(command=self.client_id_lb.yview)
         self.client_id_lb.config(yscrollcommand=client_id_sb.set)
 
@@ -97,6 +125,14 @@ class OptionsState(State):
                 self.date_birth_lb.event_generate("<<ListboxSelect>>")
                 self.date_birth_lb.see(tk.END)
 
+
+        if default_date_birth not in df.columns:
+            self.date_birth_lb.insert(0, str(default_date_birth))
+            self.date_birth_lb.itemconfig(0, background='red', foreground='black', selectbackground='#0078d7', selectforeground='red')
+            self.date_birth_lb.see(0)
+
+            default_column_not_present_detected = True
+
         date_birth_sb.config(command=self.date_birth_lb.yview)
         self.date_birth_lb.config(yscrollcommand=date_birth_sb.set)
 
@@ -124,6 +160,16 @@ class OptionsState(State):
                 self.rules_fixing_lb.select_set(tk.END)
                 self.rules_fixing_lb.event_generate("<<ListboxSelect>>")
                 self.rules_fixing_lb.see(tk.END)
+
+        # Check if the default columns for this section exist in the currently opened file.
+        # If not, add the ones that are not present at the top of the list, highlighted in red colour
+        for column in default_rules_fixing:
+            if column not in df.columns:
+                self.rules_fixing_lb.insert(0, str(column))
+                self.rules_fixing_lb.itemconfig(0, background='red', foreground='black', selectbackground='#0078d7', selectforeground='red')
+                self.rules_fixing_lb.see(0)
+
+                default_column_not_present_detected = True
 
         rules_fixing_sb.config(command=self.rules_fixing_lb.yview)
         self.rules_fixing_lb.config(yscrollcommand=rules_fixing_sb.set)
@@ -155,6 +201,14 @@ class OptionsState(State):
                 self.totals_lb.event_generate("<<ListboxSelect>>")
                 self.totals_lb.see(tk.END)
 
+        for column in default_totals:
+            if column not in df.columns:
+                self.totals_lb.insert(0, str(column))
+                self.totals_lb.itemconfig(0, background='red', foreground='black', selectbackground='#0078d7', selectforeground='red')
+                self.totals_lb.see(0)
+
+                default_column_not_present_detected = True
+
         totals_sb.config(command=self.totals_lb.yview)
         self.totals_lb.config(yscrollcommand=totals_sb.set)
 
@@ -182,6 +236,14 @@ class OptionsState(State):
                 self.to_copy_lb.select_set(tk.END)
                 self.to_copy_lb.event_generate("<<ListboxSelect>>")
                 self.to_copy_lb.see(tk.END)
+
+        for column in default_to_copy:
+            if column not in df.columns:
+                self.to_copy_lb.insert(0, str(column))
+                self.to_copy_lb.itemconfig(0, background='red', foreground='black', selectbackground='#0078d7', selectforeground='red')
+                self.to_copy_lb.see(0)
+
+                default_column_not_present_detected = True
 
         to_copy_sb.config(command=self.to_copy_lb.yview)
         self.to_copy_lb.config(yscrollcommand=to_copy_sb.set)
@@ -229,6 +291,12 @@ class OptionsState(State):
 
         priority_edit_btn = tk.Button(priority_btns_frame, text="Edit selected", command=lambda: OptionsState.priority_edit(self.priority_lb))
         priority_edit_btn.pack(pady=1.5)
+
+        # If there was at least one default column that doesn't exist in the currently opened file
+        # display a info message
+        if default_column_not_present_detected:
+            showinfo("Some default columns not present in the opened file!",
+                     "One or more of the default columns are not present in this file. They are highlighted in red colour in their respective sections. They have been automatically deselected for you. You may wish to edit the defaults if those columns are no longer in use.")
 
     # Called when the "Add new" button is pressed for the priority values.
     # Pops up a dialog box asking for a string and then adds that string to listbox
