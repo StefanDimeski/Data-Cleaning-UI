@@ -5,6 +5,7 @@ from tkinter.messagebox import showinfo
 from tkinter import filedialog as fd
 from OptionsState import OptionsState
 import StartState as ss
+from tkinter import ttk
 
 # For further documentation, visit State.py
 
@@ -26,18 +27,41 @@ class CustomiseState(State):
         # draw options state's widgets onto the frame
         options_state.enter(main_frame)
 
-        process_customise_btn = tk.Button(root, text="Process using the above settings",
+        # create a frame for the encoding selection section
+        encoding_frame = tk.Frame(root, bg=self.data.background_clr)
+        encoding_frame.pack(padx=3, side=tk.LEFT, fill=tk.Y)
+
+        # frame used to position the combobox and message at the top of the encoding_frame
+        encoding_frame_inner = tk.Frame(encoding_frame, bg=self.data.background_clr)
+        encoding_frame_inner.pack(side=tk.TOP, pady=3)
+
+        encoding_msg = tk.Message(encoding_frame_inner, width=100, text="Encoding: ", bg=self.data.background_clr)
+        encoding_msg.pack(side=tk.LEFT)
+
+        # create the combobox which allows the user to select the encoding
+        self.encoding_list = ttk.Combobox(encoding_frame_inner, state="readonly", values=["cp1252", "utf-8"])
+        # set "cp1252" as the encoding selected by default
+        self.encoding_list.current(0)
+        self.encoding_list.pack(side=tk.LEFT)
+
+        # create the frame containing the buttons
+        buttons_frame = tk.Frame(root, bg=self.data.background_clr)
+        buttons_frame.pack(side=tk.RIGHT, pady=5)
+
+        # process button on click calls the process_customise function
+        process_customise_btn = tk.Button(buttons_frame, text="Process using the above settings",
                                         command=lambda: self.process_customise(options_state.client_id_lb,
                                                                                          options_state.date_birth_lb,
                                                                                          options_state.rules_fixing_lb,
                                                                                          options_state.totals_lb,
                                                                                          options_state.to_copy_lb,
-                                                                                         options_state.priority_lb))
-        process_customise_btn.pack(pady=5)
+                                                                                         options_state.priority_lb,
+                                                                                         self.encoding_list))
+        process_customise_btn.pack(padx=7, side=tk.RIGHT)
 
         # back button on click performs a state transition to the Start State
-        back_btn = tk.Button(root, text="Back", command=lambda: self.transition(ss.StartState(self.data)))
-        back_btn.pack(pady=3)
+        back_btn = tk.Button(buttons_frame, text="Back", command=lambda: self.transition(ss.StartState(self.data)))
+        back_btn.pack(side=tk.RIGHT)
 
     def exit(self):
         super().exit()
@@ -51,7 +75,8 @@ class CustomiseState(State):
     # 4. totals_lb : tk.ListBox - the listbox containing the selections for the columns which can contain "Total"
     # 5. to_copy_lb : tk.ListBox - the listbox containing the selections for the columns to copy from the last row containing "Total"
     # 6. priority_lb : tk.ListBox - the listbox containing the values for rule fixing ordered by priority (first one has most priority)
-    def process_customise(self, client_id_lb, date_birth_lb, rules_fixing_lb, totals_lb, to_copy_lb, priority_lb):
+    # 7. encoding_cb : tkk.Combobox - the combobox containing the choices of encodings
+    def process_customise(self, client_id_lb, date_birth_lb, rules_fixing_lb, totals_lb, to_copy_lb, priority_lb, encoding_cb):
         # if there is a setting for which there is no option selected or if the priority list is empty,
         # then show error message and do nothing
         if len(client_id_lb.curselection()) <= 0 or len(date_birth_lb.curselection()) <= 0 or len(rules_fixing_lb.curselection()) <= 0 \
@@ -68,6 +93,9 @@ class CustomiseState(State):
 
         priority_vals = list(priority_lb.get(0, priority_lb.size() - 1))
 
+        encoding = encoding_cb.get()
+
+        # ask the user to choose where to save the file
         filename_to_save = fd.asksaveasfilename(title="Save as", defaultextension=".xlsx",
                                                 filetypes=(("Excel file", ".xlsx"),), confirmoverwrite=True, initialfile="processed_file")
 
@@ -76,7 +104,7 @@ class CustomiseState(State):
             return
         
         # process the file and save it as selected
-        final_df = process_file(self.data.filename, client_id_clm, date_birth_clm, totals_clms, rules_fixing_clms, to_copy_clms, priority_vals)
+        final_df = process_file(self.data.filename, client_id_clm, date_birth_clm, totals_clms, rules_fixing_clms, to_copy_clms, priority_vals, encoding)
         final_df.to_excel(filename_to_save, index=False)
 
         showinfo(title="Success!", message="File has been successfully created!")

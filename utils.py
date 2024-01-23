@@ -11,13 +11,14 @@ import json
 # 5. columns_for_rule_fixing : List[String] - names of the columns to which the rule-fixing algorithm should be applied.
 # 6. columns_to_copy_from_last_total : List[String] - names of the columns that should be copied from the last row containing the word "Total" for each client with multiple entries (EXPLAIN MORE)
 # 7. priority_vals : List[String] - list of the values for rule-fixing ordered by priority (first in the list has most priority)
-def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for_total, columns_for_rule_fixing, columns_to_copy_from_last_total, priority_vals):
+# 8. encoding : String - name of the encoding to be used to read the file (only used if the file is .csv). Default is "cp1252"
+def process_file(filepath, id_column, date_of_birth_column, columns_to_check_for_total, columns_for_rule_fixing, columns_to_copy_from_last_total, priority_vals, encoding="cp1252"):
     # get the file extension from the path
     file_extension = filepath.split(".")[-1]
 
     # use the appropriate pandas f-on to read the file based on its extension/format
     if file_extension == 'csv':
-        df = pd.read_csv(filepath, encoding='cp1252')
+        df = pd.read_csv(filepath, encoding=encoding)
     elif file_extension == 'xlsx':
         df = pd.read_excel(filepath)
     else:

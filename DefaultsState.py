@@ -25,18 +25,22 @@ class DefaultsState(State):
         # draw options state's widgets onto the frame
         self.options_state.enter(main_frame)
 
-        save_btn = tk.Button(root, text="Save defaults",
+        # create the frame holding the buttons
+        buttons_frame = tk.Frame(root, bg=self.data.background_clr)
+        buttons_frame.pack(padx=3, pady=5)
+
+        save_btn = tk.Button(buttons_frame, text="Save defaults",
                                         command=lambda: DefaultsState.update_defaults(self.options_state.client_id_lb,
                                                                                          self.options_state.date_birth_lb,
                                                                                          self.options_state.rules_fixing_lb,
                                                                                          self.options_state.totals_lb,
                                                                                          self.options_state.to_copy_lb,
                                                                                          self.options_state.priority_lb))
-        save_btn.pack(pady=5)
+        save_btn.pack(padx=5, side=tk.LEFT)
 
         # back button on click performs a state transition to the Start State
-        back_btn = tk.Button(root, text="Back", command=lambda: self.transition(ss.StartState(self.data)))
-        back_btn.pack(pady=2)
+        back_btn = tk.Button(buttons_frame, text="Back", command=lambda: self.transition(ss.StartState(self.data)))
+        back_btn.pack(side=tk.LEFT)
 
     # Called when the "Save defaults" button is pressed. It first reads out the selections from the widgets
     # and then saves them to the defaults.json file in JSON format.
